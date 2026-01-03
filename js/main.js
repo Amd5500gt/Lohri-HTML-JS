@@ -1,156 +1,92 @@
-     // DOM elements
-        const landingPage = document.getElementById('landingPage');
-        const landingSenderName = document.getElementById('landingSenderName');
-        const landingPunjabiMessage = document.getElementById('landingPunjabiMessage');
-        const openMainPageBtn = document.getElementById('openMainPageBtn');
-        const mainContainer = document.getElementById('mainContainer');
-        const mainSenderMessage = document.getElementById('mainSenderMessage');
-        const sendLohriButton = document.getElementById('sendLohriButton');
-        const inputSection = document.getElementById('inputSection');
-        const userNameInput = document.getElementById('userName');
-        const generateLinkButton = document.getElementById('generateLink');
-        const generatedLink = document.getElementById('generatedLink');
-        const whatsappShareButton = document.getElementById('whatsappShare');
-        const copyLinkButton = document.getElementById('copyLink');
-        const floatingEmojis = document.getElementById('floatingEmojis');
-        const confettiContainer = document.getElementById('confettiContainer');
-        const lohriAudio = document.getElementById('lohriAudio');
+// DOM elements
+const landingPage = document.getElementById('landingPage');
+const landingSenderName = document.getElementById('landingSenderName');
+const landingPunjabiMessage = document.getElementById('landingPunjabiMessage');
+const openMainPageBtn = document.getElementById('openMainPageBtn');
+const mainContainer = document.getElementById('mainContainer');
+const mainSenderMessage = document.getElementById('mainSenderMessage');
+const sendLohriButton = document.getElementById('sendLohriButton');
+const inputSection = document.getElementById('inputSection');
+const userNameInput = document.getElementById('userName');
+const generateLinkButton = document.getElementById('generateLink');
+const generatedLink = document.getElementById('generatedLink');
+const whatsappShareButton = document.getElementById('whatsappShare');
+const copyLinkButton = document.getElementById('copyLink');
+const floatingEmojis = document.getElementById('floatingEmojis');
+const confettiContainer = document.getElementById('confettiContainer');
+const lohriAudio = document.getElementById('lohriAudio');
 
-        
-        // Get sender name from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const senderName = urlParams.get('from');
-        
-        // Set landing page message
-        function setLandingMessage() {
-            if (senderName) {
-                landingSenderName.textContent = senderName;
-                landingPunjabiMessage.textContent = `ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ`;
-            } else {
-                // If no name in URL, show generic message
-                landingSenderName.textContent = "ਤੁਹਾਡੇ ਦੋਸਤ";
-                landingPunjabiMessage.textContent = `ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ`;
-            }
-        }
-        
-        // Set main page message
-        function setMainMessage() {
-            if (senderName) {
-                mainSenderMessage.innerHTML = `🎉 <strong>${senderName}</strong> ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ!`;
-            } else {
-                mainSenderMessage.innerHTML = '🎉 ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀਆਂ ਲੱਖ ਲੱਖ ਵਧਾਈਆਂ!';
-            }
-        }
-        
-        // Show main page
-        function showMainPage() {
-            // Hide landing page with animation
-            landingPage.classList.add('hidden');
+// Get sender name from URL
+const urlParams = new URLSearchParams(window.location.search);
+const senderName = urlParams.get('from');
+
+// Clean URL function - removes special characters and spaces
+function cleanNameForURL(name) {
+    // Convert to lowercase and remove special characters
+    return name
+        .toLowerCase()
+        .replace(/[^\w\s]/gi, '') // Remove special characters
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/-+/g, '-')      // Remove multiple hyphens
+        .replace(/^-+/, '')       // Remove hyphens from start
+        .replace(/-+$/, '');      // Remove hyphens from end
+}
+
+// Get clean sender name from URL
+function getCleanSenderName() {
+    if (!senderName) return null;
+    
+    // Try to decode first (in case it was encoded)
+    let decodedName = decodeURIComponent(senderName);
+    
+    // If it contains encoded characters, try to clean it
+    if (decodedName !== senderName) {
+        return cleanNameForURL(decodedName);
+    }
+    
+    // If it's already clean, return as is
+    return cleanNameForURL(senderName);
+}
+
+// Set landing page message
+function setLandingMessage() {
+    const cleanName = getCleanSenderName();
+    
+    if (cleanName) {
+        // Format the name for display (capitalize first letter of each word)
+        const displayName = cleanName
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
             
-            // Show main container with animation
-            setTimeout(() => {
-                mainContainer.classList.add('visible');
-                createFloatingEmojis();
-                
-                // Trigger confetti animation
-                setTimeout(() => {
-                    createConfetti();
-                }, 500);
-            }, 500);
+        landingSenderName.textContent = displayName;
+        landingPunjabiMessage.textContent = `ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ`;
+    } else {
+        // If no name in URL, show generic message
+        landingSenderName.textContent = "ਤੁਹਾਡੇ ਦੋਸਤ";
+        landingPunjabiMessage.textContent = `ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ`;
+    }
+}
+
+// Set main page message
+function setMainMessage() {
+    const cleanName = getCleanSenderName();
+    
+    if (cleanName) {
+        // Format the name for display
+        const displayName = cleanName
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
             
-            // Play a subtle sound effect (optional)
-            playClickSound();
-        }
-        
-        // Initialize floating emojis
-        function createFloatingEmojis() {
-            const emojis = ['🔥', '🪔', '🧡', '🥁', '🎉', '✨', '🌟', '💫'];
-            const numEmojis = 15;
-            
-            for (let i = 0; i < numEmojis; i++) {
-                const emoji = document.createElement('div');
-                emoji.className = 'floating-emoji';
-                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                emoji.style.left = `${Math.random() * 100}vw`;
-                emoji.style.animationDelay = `${Math.random() * 5}s`;
-                emoji.style.fontSize = `${Math.random() * 20 + 20}px`;
-                floatingEmojis.appendChild(emoji);
-            }
-        }
-        
-        // Create confetti animation
-        function createConfetti() {
-            const confettiCount = 150;
-            confettiContainer.innerHTML = '';
-            
-            for (let i = 0; i < confettiCount; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.width = `${Math.random() * 10 + 5}px`;
-                confetti.style.height = confetti.style.width;
-                
-                // Random animation properties
-                const animationDuration = Math.random() * 3 + 2;
-                const animationDelay = Math.random() * 2;
-                
-                confetti.style.animation = `confetti-fall ${animationDuration}s ease-in ${animationDelay}s forwards`;
-                confettiContainer.appendChild(confetti);
-                
-                // Create CSS for confetti fall
-                if (!document.getElementById('confetti-animation')) {
-                    const style = document.createElement('style');
-                    style.id = 'confetti-animation';
-                    style.textContent = `
-                        @keyframes confetti-fall {
-                            0% {
-                                transform: translateY(-100px) rotate(0deg);
-                                opacity: 1;
-                            }
-                            100% {
-                                transform: translateY(100vh) rotate(360deg);
-                                opacity: 0;
-                            }
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-                
-                // Remove confetti after animation
-                setTimeout(() => {
-                    if (confetti.parentNode) {
-                        confetti.remove();
-                    }
-                }, (animationDuration + animationDelay) * 1000);
-            }
-        }
-        
-        // Play click sound (optional)
-        function playClickSound() {
-            // Create a simple click sound using Web Audio API
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            } catch (e) {
-                // If Web Audio API is not supported, do nothing
-                console.log("Audio not supported");
-            }
-        }
-        
-   function showMainPage() {
+        mainSenderMessage.innerHTML = `🎉 <strong>${displayName}</strong> ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ!`;
+    } else {
+        mainSenderMessage.innerHTML = '🎉 ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀਆਂ ਲੱਖ ਲੱਖ ਵਧਾਈਆਂ!';
+    }
+}
+
+// Show main page
+function showMainPage() {
     // 🔊 PLAY LOHRI SONG
     if (lohriAudio) {
         lohriAudio.currentTime = 0; // start from beginning
@@ -177,92 +113,207 @@
     playClickSound();
 }
 
-        // Send Lohri button click handler
-        sendLohriButton.addEventListener('click', function() {
-            inputSection.style.display = 'block';
-            inputSection.scrollIntoView({ behavior: 'smooth' });
-        });
+// Initialize floating emojis
+function createFloatingEmojis() {
+    const emojis = ['🔥', '🪔', '🧡', '🥁', '🎉', '✨', '🌟', '💫'];
+    const numEmojis = 15;
+    
+    for (let i = 0; i < numEmojis; i++) {
+        const emoji = document.createElement('div');
+        emoji.className = 'floating-emoji';
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        emoji.style.left = `${Math.random() * 100}vw`;
+        emoji.style.animationDelay = `${Math.random() * 5}s`;
+        emoji.style.fontSize = `${Math.random() * 20 + 20}px`;
+        floatingEmojis.appendChild(emoji);
+    }
+}
+
+// Create confetti animation
+function createConfetti() {
+    const confettiCount = 150;
+    confettiContainer.innerHTML = '';
+    
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.width = `${Math.random() * 10 + 5}px`;
+        confetti.style.height = confetti.style.width;
         
-        // Generate link button click handler
-        generateLinkButton.addEventListener('click', function() {
-            const userName = userNameInput.value.trim();
-            
-            if (!userName) {
-                alert('ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ');
-                userNameInput.focus();
-                return;
-            }
-            
-            // Create the shareable URL
-            const currentUrl = window.location.origin + window.location.pathname;
-            const shareableUrl = `${currentUrl}?from=${encodeURIComponent(userName)}`;
-            
-            // Display the generated link
-            generatedLink.textContent = shareableUrl;
-            generatedLink.style.display = 'block';
-            
-            // Scroll to the generated link
-            generatedLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
+        // Random animation properties
+        const animationDuration = Math.random() * 3 + 2;
+        const animationDelay = Math.random() * 2;
         
-        // WhatsApp share button click handler
-        whatsappShareButton.addEventListener('click', function() {
-            const userName = userNameInput.value.trim();
-            
-            if (!userName) {
-                alert('ਕਿਰਪਾ ਕਰਕੇ ਪਹਿਲਾਂ ਲਿੰਕ ਬਣਾਓ');
-                return;
-            }
-            
-            const currentUrl = window.location.origin + window.location.pathname;
-            const shareableUrl = `${currentUrl}?from=${encodeURIComponent(userName)}`;
-            const message = `ਲੋਹੜੀ ਦੀਆਂ ਵਧਾਈਆਂ! ${userName} ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ: ${shareableUrl}`;
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            
-            window.open(whatsappUrl, '_blank');
-        });
+        confetti.style.animation = `confetti-fall ${animationDuration}s ease-in ${animationDelay}s forwards`;
+        confettiContainer.appendChild(confetti);
         
-        // Copy link button click handler
-        copyLinkButton.addEventListener('click', function() {
-            const userName = userNameInput.value.trim();
-            
-            if (!userName) {
-                alert('ਕਿਰਪਾ ਕਰਕੇ ਪਹਿਲਾਂ ਲਿੰਕ ਬਣਾਓ');
-                return;
+        // Create CSS for confetti fall
+        if (!document.getElementById('confetti-animation')) {
+            const style = document.createElement('style');
+            style.id = 'confetti-animation';
+            style.textContent = `
+                @keyframes confetti-fall {
+                    0% {
+                        transform: translateY(-100px) rotate(0deg);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(100vh) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Remove confetti after animation
+        setTimeout(() => {
+            if (confetti.parentNode) {
+                confetti.remove();
             }
+        }, (animationDuration + animationDelay) * 1000);
+    }
+}
+
+// Play click sound (optional)
+function playClickSound() {
+    // Create a simple click sound using Web Audio API
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+        // If Web Audio API is not supported, do nothing
+        console.log("Audio not supported");
+    }
+}
+
+// Send Lohri button click handler
+sendLohriButton.addEventListener('click', function() {
+    inputSection.style.display = 'block';
+    inputSection.scrollIntoView({ behavior: 'smooth' });
+});
+
+// Generate link button click handler
+generateLinkButton.addEventListener('click', function() {
+    const userName = userNameInput.value.trim();
+    
+    if (!userName) {
+        alert('ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ');
+        userNameInput.focus();
+        return;
+    }
+    
+    // Clean the username for URL
+    const cleanUserName = cleanNameForURL(userName);
+    
+    // Create the shareable URL with clean name
+    const currentUrl = window.location.origin + window.location.pathname;
+    const shareableUrl = `${currentUrl}?from=${cleanUserName}`;
+    
+    // Display the generated link
+    generatedLink.textContent = shareableUrl;
+    generatedLink.style.display = 'block';
+    
+    // Scroll to the generated link
+    generatedLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+
+// WhatsApp share button click handler
+whatsappShareButton.addEventListener('click', function() {
+    const userName = userNameInput.value.trim();
+    
+    if (!userName) {
+        alert('ਕਿਰਪਾ ਕਰਕੇ ਪਹਿਲਾਂ ਲਿੰਕ ਬਣਾਓ');
+        return;
+    }
+    
+    // Clean the username for URL
+    const cleanUserName = cleanNameForURL(userName);
+    
+    const currentUrl = window.location.origin + window.location.pathname;
+    const shareableUrl = `${currentUrl}?from=${cleanUserName}`;
+    
+    // Create customized Punjabi share message as requested
+    const message = `*"${userName}" ਦੀ ਪਹਿਲੀ ਲੋਹੜੀ * ਤੁਹਾਨੂੰ ਇੱਕ ਹੈਰਾਨੀਜਨਕ ਸੁਨੇਹਾ ਭੇਜਿਆ ਹੈ 😍 
+
+💁 ਇਸ ਨੀਲੀ ਲਾਈਨ ਨੂੰ ਛੂਹੋ  
+👇👇👇
+${shareableUrl}
+
+🔥 ਲੋਹੜੀ ਮੁਬਾਰਕ! 🔥`;
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
+});
+
+// Copy link button click handler
+copyLinkButton.addEventListener('click', function() {
+    const userName = userNameInput.value.trim();
+    
+    if (!userName) {
+        alert('ਕਿਰਪਾ ਕਰਕੇ ਪਹਿਲਾਂ ਲਿੰਕ ਬਣਾਓ');
+        return;
+    }
+    
+    // Clean the username for URL
+    const cleanUserName = cleanNameForURL(userName);
+    
+    const currentUrl = window.location.origin + window.location.pathname;
+    const shareableUrl = `${currentUrl}?from=${cleanUserName}`;
+    
+    // Create the same customized message for clipboard
+    const message = `*"${userName}" ਦੀ ਪਹਿਲੀ ਲੋਹੜੀ * ਤੁਹਾਨੂੰ ਇੱਕ ਹੈਰਾਨੀਜਨਕ ਸੁਨੇਹਾ ਭੇਜਿਆ ਹੈ 😍 
+
+💁 ਇਸ ਨੀਲੀ ਲਾਈਨ ਨੂੰ ਛੂਹੋ  
+👇👇👇
+${shareableUrl}
+
+🔥 ਲੋਹੜੀ ਮੁਬਾਰਕ! 🔥`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(message)
+        .then(() => {
+            // Show success feedback
+            const originalText = copyLinkButton.innerHTML;
+            copyLinkButton.innerHTML = '<span>✓</span><span>ਸੁਨੇਹਾ ਕਾਪੀ ਹੋ ਗਿਆ!</span>';
             
-            const currentUrl = window.location.origin + window.location.pathname;
-            const shareableUrl = `${currentUrl}?from=${encodeURIComponent(userName)}`;
-            
-            // Copy to clipboard
+            setTimeout(() => {
+                copyLinkButton.innerHTML = originalText;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy: ', err);
+            // Fallback: copy just the URL
             navigator.clipboard.writeText(shareableUrl)
                 .then(() => {
-                    // Show success feedback
-                    const originalText = copyLinkButton.innerHTML;
-                    copyLinkButton.innerHTML = '<span>✓</span><span>ਲਿੰਕ ਕਾਪੀ ਹੋ ਗਿਆ!</span>';
-                    
-                    setTimeout(() => {
-                        copyLinkButton.innerHTML = originalText;
-                    }, 2000);
+                    alert('ਲਿੰਕ ਕਾਪੀ ਹੋ ਗਿਆ!');
                 })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
+                .catch(() => {
                     alert('ਲਿੰਕ ਕਾਪੀ ਕਰਨ ਵਿੱਚ ਅਸਫਲ, ਕਿਰਪਾ ਕਰਕੇ ਮੈਨੂਅਲੀ ਕਾਪੀ ਕਰੋ');
                 });
         });
-        
-        // Open main page button click handler
-        openMainPageBtn.addEventListener('click', showMainPage);
-        
-        // Initialize the page
-        function init() {
-            setLandingMessage();
-            setMainMessage();
-            
-            // If there's no sender name, we could optionally skip the landing page
-            // But for consistency, we'll always show it
-        }
-        function startLohriCountdown() {
+});
+
+// Open main page button click handler
+openMainPageBtn.addEventListener('click', showMainPage);
+
+// Start Lohri countdown
+function startLohriCountdown() {
     const now = new Date();
     const currentYear = now.getFullYear();
 
@@ -280,8 +331,10 @@
 
         if (distance <= 0) {
             clearInterval(timer);
-            document.querySelector('.lohri-countdown').innerHTML =
-                `<div class="countdown-title">🎉🔥 ਲੋਹੜੀ ਆ ਗਈ! 🔥🎉</div>`;
+            const countdownElement = document.querySelector('.lohri-countdown');
+            if (countdownElement) {
+                countdownElement.innerHTML = `<div class="countdown-title">🎉🔥 ਲੋਹੜੀ ਆ ਗਈ! 🔥🎉</div>`;
+            }
             return;
         }
 
@@ -290,14 +343,24 @@
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        document.getElementById("days").textContent = days;
-        document.getElementById("hours").textContent = hours;
-        document.getElementById("minutes").textContent = minutes;
-        document.getElementById("seconds").textContent = seconds;
+        const daysElement = document.getElementById("days");
+        const hoursElement = document.getElementById("hours");
+        const minutesElement = document.getElementById("minutes");
+        const secondsElement = document.getElementById("seconds");
+        
+        if (daysElement) daysElement.textContent = days;
+        if (hoursElement) hoursElement.textContent = hours;
+        if (minutesElement) minutesElement.textContent = minutes;
+        if (secondsElement) secondsElement.textContent = seconds;
     }, 1000);
 }
-startLohriCountdown();
 
-        // Initialize when page loads
-        window.addEventListener('DOMContentLoaded', init);
-   
+// Initialize the page
+function init() {
+    setLandingMessage();
+    setMainMessage();
+    startLohriCountdown();
+}
+
+// Initialize when page loads
+window.addEventListener('DOMContentLoaded', init);
