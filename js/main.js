@@ -20,45 +20,128 @@ const lohriAudio = document.getElementById('lohriAudio');
 const urlParams = new URLSearchParams(window.location.search);
 const senderName = urlParams.get('from');
 
-// Clean URL function - removes special characters and spaces
+// Enhanced function to support Punjabi, Hindi, and English names in URLs
 function cleanNameForURL(name) {
-    // Convert to lowercase and remove special characters
-    return name
+    if (!name) return '';
+    
+    // First decode any existing URL encoding
+    let decodedName = decodeURIComponent(name);
+    
+    // Handle Punjabi and Hindi characters - convert to transliteration
+    // For Punjabi/Hindi names, we'll create a simplified version
+    let cleanedName = decodedName
         .toLowerCase()
-        .replace(/[^\w\s]/gi, '') // Remove special characters
+        // Replace common Punjabi/Hindi characters with English approximations
+        .replace(/[ਥ]/g, 'th')
+        .replace(/[ਗ]/g, 'g')
+        .replace(/[ਦ]/g, 'd')
+        .replace(/[ਬ]/g, 'b')
+        .replace(/[ਪ]/g, 'p')
+        .replace(/[ਜ]/g, 'j')
+        .replace(/[ਕ]/g, 'k')
+        .replace(/[ਮ]/g, 'm')
+        .replace(/[ਨ]/g, 'n')
+        .replace(/[ਤ]/g, 't')
+        .replace(/[ਵ]/g, 'v')
+        .replace(/[ਸ]/g, 's')
+        .replace(/[ਹ]/g, 'h')
+        .replace(/[ਲ]/g, 'l')
+        .replace(/[ਅ-ੴ]/g, '') // Remove other Punjabi characters
+        .replace(/[अ-ह]/g, '')  // Remove Devanagari characters
+        .replace(/[^\w\s-]/gi, '') // Remove special characters except hyphens
         .replace(/\s+/g, '-')     // Replace spaces with hyphens
         .replace(/-+/g, '-')      // Remove multiple hyphens
         .replace(/^-+/, '')       // Remove hyphens from start
         .replace(/-+$/, '');      // Remove hyphens from end
-}
-
-// Get clean sender name from URL
-function getCleanSenderName() {
-    if (!senderName) return null;
     
-    // Try to decode first (in case it was encoded)
-    let decodedName = decodeURIComponent(senderName);
-    
-    // If it contains encoded characters, try to clean it
-    if (decodedName !== senderName) {
-        return cleanNameForURL(decodedName);
+    // If after cleaning we have nothing, use a default
+    if (!cleanedName) {
+        cleanedName = 'lohri-mubarak';
     }
     
-    // If it's already clean, return as is
-    return cleanNameForURL(senderName);
+    return cleanedName;
+}
+
+// Alternative approach: Use Base64 encoding for full language support
+function createLanguageSafeURL(name) {
+    if (!name) return '';
+    
+    // Method 1: Try to keep original if it's only English
+    const englishOnlyRegex = /^[A-Za-z0-9\s\-]+$/;
+    if (englishOnlyRegex.test(name)) {
+        return name.toLowerCase().replace(/\s+/g, '-');
+    }
+    
+    // Method 2: For Punjabi/Hindi names, use a hash or encoded version
+    // Create a short hash of the name
+    function simpleHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return Math.abs(hash).toString(36).substring(0, 8);
+    }
+    
+    // Method 3: Use URL-safe Base64 encoding
+    function toUrlSafeBase64(str) {
+        // First encode to base64
+        const base64 = btoa(encodeURIComponent(str));
+        // Make it URL safe
+        return base64
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
+    
+    // Use Base64 encoding for full language support
+    return 'name-' + toUrlSafeBase64(name);
+}
+
+// Decode the name from URL
+function decodeNameFromURL(encodedName) {
+    if (!encodedName) return null;
+    
+    // Check if it's our Base64 encoded format
+    if (encodedName.startsWith('name-')) {
+        const base64Str = encodedName.substring(5);
+        try {
+            // Add padding if needed
+            let padded = base64Str;
+            while (padded.length % 4 !== 0) {
+                padded += '=';
+            }
+            // Convert back
+            padded = padded.replace(/-/g, '+').replace(/_/g, '/');
+            return decodeURIComponent(atob(padded));
+        } catch (e) {
+            console.error('Error decoding name:', e);
+            return encodedName;
+        }
+    }
+    
+    // If it's just a regular name, decode URI component
+    try {
+        return decodeURIComponent(encodedName);
+    } catch (e) {
+        return encodedName;
+    }
+}
+
+// Get sender name from URL with language support
+function getSenderNameFromURL() {
+    if (!senderName) return null;
+    
+    // Try to decode if it's encoded
+    return decodeNameFromURL(senderName);
 }
 
 // Set landing page message
 function setLandingMessage() {
-    const cleanName = getCleanSenderName();
+    const displayName = getSenderNameFromURL();
     
-    if (cleanName) {
-        // Format the name for display (capitalize first letter of each word)
-        const displayName = cleanName
-            .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-            
+    if (displayName) {
         landingSenderName.textContent = displayName;
         landingPunjabiMessage.textContent = `ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ`;
     } else {
@@ -70,15 +153,9 @@ function setLandingMessage() {
 
 // Set main page message
 function setMainMessage() {
-    const cleanName = getCleanSenderName();
+    const displayName = getSenderNameFromURL();
     
-    if (cleanName) {
-        // Format the name for display
-        const displayName = cleanName
-            .split('-')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-            
+    if (displayName) {
         mainSenderMessage.innerHTML = `🎉 <strong>${displayName}</strong> ਨੇ ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀ ਵਧਾਈ ਭੇਜੀ ਹੈ!`;
     } else {
         mainSenderMessage.innerHTML = '🎉 ਤੁਹਾਨੂੰ ਲੋਹੜੀ ਦੀਆਂ ਲੱਖ ਲੱਖ ਵਧਾਈਆਂ!';
@@ -217,12 +294,15 @@ generateLinkButton.addEventListener('click', function() {
         return;
     }
     
-    // Clean the username for URL
-    const cleanUserName = cleanNameForURL(userName);
-    
-    // Create the shareable URL with clean name
+    // Create the shareable URL with language-safe encoding
     const currentUrl = window.location.origin + window.location.pathname;
-    const shareableUrl = `${currentUrl}?from=${cleanUserName}`;
+    
+    // Option 1: Use Base64 encoding (supports all languages)
+    const encodedName = createLanguageSafeURL(userName);
+    const shareableUrl = `${currentUrl}?from=${encodedName}`;
+    
+    // Option 2: Simple encoding (works for most cases)
+    // const shareableUrl = `${currentUrl}?from=${encodeURIComponent(userName)}`;
     
     // Display the generated link
     generatedLink.textContent = shareableUrl;
@@ -241,11 +321,10 @@ whatsappShareButton.addEventListener('click', function() {
         return;
     }
     
-    // Clean the username for URL
-    const cleanUserName = cleanNameForURL(userName);
-    
+    // Create the shareable URL
     const currentUrl = window.location.origin + window.location.pathname;
-    const shareableUrl = `${currentUrl}?from=${cleanUserName}`;
+    const encodedName = createLanguageSafeURL(userName);
+    const shareableUrl = `${currentUrl}?from=${encodedName}`;
     
     // Create customized Punjabi share message as requested
     const message = `*"${userName}" ਦੀ ਪਹਿਲੀ ਲੋਹੜੀ * ਤੁਹਾਨੂੰ ਇੱਕ ਹੈਰਾਨੀਜਨਕ ਸੁਨੇਹਾ ਭੇਜਿਆ ਹੈ 😍 
@@ -270,11 +349,10 @@ copyLinkButton.addEventListener('click', function() {
         return;
     }
     
-    // Clean the username for URL
-    const cleanUserName = cleanNameForURL(userName);
-    
+    // Create the shareable URL
     const currentUrl = window.location.origin + window.location.pathname;
-    const shareableUrl = `${currentUrl}?from=${cleanUserName}`;
+    const encodedName = createLanguageSafeURL(userName);
+    const shareableUrl = `${currentUrl}?from=${encodedName}`;
     
     // Create the same customized message for clipboard
     const message = `*"${userName}" ਦੀ ਪਹਿਲੀ ਲੋਹੜੀ * ਤੁਹਾਨੂੰ ਇੱਕ ਹੈਰਾਨੀਜਨਕ ਸੁਨੇਹਾ ਭੇਜਿਆ ਹੈ 😍 
@@ -353,6 +431,106 @@ function startLohriCountdown() {
         if (minutesElement) minutesElement.textContent = minutes;
         if (secondsElement) secondsElement.textContent = seconds;
     }, 1000);
+}
+
+// Add polyfill for older browsers that don't support btoa with Unicode
+if (typeof btoa === 'undefined') {
+    // Polyfill for btoa
+    window.btoa = function(str) {
+        return Buffer.from(str, 'binary').toString('base64');
+    };
+}
+
+if (typeof atob === 'undefined') {
+    // Polyfill for atob
+    window.atob = function(str) {
+        return Buffer.from(str, 'base64').toString('binary');
+    };
+}
+
+// Handle Unicode in btoa/atob
+function btoaUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+        return String.fromCharCode('0x' + p1);
+    }));
+}
+
+function atobUnicode(str) {
+    return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+}
+
+// Enhanced URL encoding for complete language support
+function createUniversalURL(name) {
+    if (!name) return '';
+    
+    // Check if name contains non-ASCII characters
+    const hasNonAscii = /[^\x00-\x7F]/.test(name);
+    
+    if (!hasNonAscii) {
+        // Simple English name, use as-is with hyphens
+        return name.toLowerCase().replace(/\s+/g, '-');
+    } else {
+        // Punjabi/Hindi name, use Base64 encoding
+        // First convert to UTF-8
+        const utf8Bytes = new TextEncoder().encode(name);
+        // Convert to Base64
+        let binary = '';
+        for (let i = 0; i < utf8Bytes.length; i++) {
+            binary += String.fromCharCode(utf8Bytes[i]);
+        }
+        const base64 = btoa(binary);
+        // Make URL safe
+        return base64
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
+}
+
+// Update the createLanguageSafeURL function to use the universal method
+function createLanguageSafeURL(name) {
+    return createUniversalURL(name);
+}
+
+// Update decode function
+function decodeNameFromURL(encodedName) {
+    if (!encodedName) return null;
+    
+    // Check if it looks like Base64 (contains only URL-safe Base64 chars)
+    const base64Regex = /^[A-Za-z0-9\-_]+$/;
+    
+    if (base64Regex.test(encodedName) && encodedName.length > 10) {
+        // Likely Base64 encoded
+        try {
+            // Add padding
+            let padded = encodedName.replace(/-/g, '+').replace(/_/g, '/');
+            while (padded.length % 4 !== 0) {
+                padded += '=';
+            }
+            
+            // Decode from Base64
+            const binary = atob(padded);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            
+            // Convert from UTF-8
+            return new TextDecoder().decode(bytes);
+        } catch (e) {
+            console.error('Error decoding:', e);
+            return encodedName;
+        }
+    } else {
+        // Simple name, just decode URI component
+        try {
+            return decodeURIComponent(encodedName);
+        } catch (e) {
+            return encodedName;
+        }
+    }
 }
 
 // Initialize the page
