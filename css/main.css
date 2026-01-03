@@ -1,0 +1,784 @@
+   * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Baloo 2', cursive;
+            background: linear-gradient(to bottom, #ff6b00, #ff8c00, #ffaa00);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Landing page styles */
+        #landingPage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 50%, #ffaa00 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        #landingPage.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .landing-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border: 8px solid #d32f2f;
+            position: relative;
+            animation: bounceIn 1s ease;
+        }
+        
+        .landing-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .landing-title {
+            color: #d32f2f;
+            font-size: 36px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sender-info {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #ff9800;
+            border-right: 5px solid #ff9800;
+        }
+        
+        .sender-name {
+            color: #d32f2f;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .sender-message-punjabi {
+            color: #5d2906;
+            font-size: 22px;
+            line-height: 1.4;
+        }
+        
+        .click-instruction {
+            color: #388e3c;
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .open-btn {
+            background: linear-gradient(to right, #d32f2f, #ff5722);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 40px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .open-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .open-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Punjabi themed background elements */
+        .background-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .wooden-doors {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to bottom, #8b4513, #a0522d);
+            border-bottom: 8px solid #5d2906;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10%;
+        }
+        
+        .door-left, .door-right {
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(to right, #8b4513, #a0522d, #8b4513);
+            border-left: 6px solid #5d2906;
+            border-right: 6px solid #5d2906;
+            position: relative;
+        }
+        
+        .door-left::after, .door-right::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #d4af37;
+            border-radius: 50%;
+            box-shadow: 0 0 10px gold;
+        }
+        
+        /* Main container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 15px 40px;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Greeting card */
+        .greeting-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 100px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 5px solid #d32f2f;
+            position: relative;
+            text-align: center;
+        }
+        
+        /* Card decorative elements */
+        .card-top {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .card-top span {
+            font-size: 40px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .card-top span:nth-child(1) { animation-delay: 0s; }
+        .card-top span:nth-child(2) { animation-delay: 0.5s; }
+        .card-top span:nth-child(3) { animation-delay: 1s; }
+        .card-top span:nth-child(4) { animation-delay: 1.5s; }
+        
+        /* Punjabi title */
+        .punjabi-title {
+            font-size: 48px;
+            color: #d32f2f;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        /* Character illustration */
+        .character-container {
+            position: relative;
+            height: 180px;
+            margin: 20px 0;
+        }
+        
+        .bonfire {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 100px;
+            background: radial-gradient(circle, #ff4500, #ff8c00, #ffaa00);
+            border-radius: 50% 50% 40% 40%;
+            box-shadow: 0 0 40px #ff4500;
+            z-index: 1;
+        }
+        
+        .bonfire::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 100px;
+            background: radial-gradient(circle, #ffaa00, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .punjabi-character {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            animation: dance 2s infinite alternate ease-in-out;
+        }
+        
+        .character-head {
+            width: 50px;
+            height: 50px;
+            background: #f5deb3;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+        
+        .character-turban {
+            width: 60px;
+            height: 25px;
+            background: #d32f2f;
+            border-radius: 10px;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+        }
+        
+        .character-body {
+            width: 70px;
+            height: 80px;
+            background: #4caf50;
+            border-radius: 10px;
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        
+        .dhol {
+            width: 40px;
+            height: 60px;
+            background: #8b4513;
+            border-radius: 5px;
+            position: absolute;
+            top: 40px;
+            right: -60px;
+            z-index: 2;
+        }
+        
+        .dhol::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid #d4af37;
+            border-radius: 3px;
+        }
+        
+        /* Greeting message */
+        .greeting-message {
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .greeting-line {
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .line1 { color: #d32f2f; font-weight: bold; }
+        .line2 { color: #388e3c; }
+        .line3 { color: #ff8c00; }
+        
+        .main-sender-message {
+            background: #fff3e0;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 20px;
+            color: #5d2906;
+            border-left: 5px solid #ff9800;
+        }
+        
+        /* Buttons section */
+        .buttons-section {
+            width: 100%;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 18px 20px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-red {
+            background: linear-gradient(to right, #d32f2f, #ff5722);
+            color: white;
+        }
+        
+        .btn-green {
+            background: linear-gradient(to right, #388e3c, #4caf50);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Name input section */
+        .input-section {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 30px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 5px solid #388e3c;
+        }
+        
+        .section-title {
+            color: #5d2906;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            display: block;
+            color: #d32f2f;
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .name-input {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #ff9800;
+            border-radius: 10px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 18px;
+            color: #5d2906;
+        }
+        
+        .btn-blue {
+            background: linear-gradient(to right, #1976d2, #2196f3);
+            color: white;
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+        }
+        
+        .share-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .share-btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 18px;
+        }
+        
+        .btn-whatsapp {
+            background: linear-gradient(to right, #25d366, #128c7e);
+        }
+        
+        .btn-copy {
+            background: linear-gradient(to right, #ff9800, #ffb74d);
+        }
+        
+        .generated-link {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            border: 2px dashed #4caf50;
+            word-break: break-all;
+            color: #1b5e20;
+            font-size: 16px;
+            display: none;
+        }
+        
+        /* Floating emojis */
+        .floating-emoji {
+            position: fixed;
+            font-size: 24px;
+            animation: float-emoji 8s linear infinite;
+            opacity: 0.7;
+            z-index: 0;
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes dance {
+            0% { transform: translateX(-50%) rotate(-5deg); }
+            100% { transform: translateX(-50%) rotate(5deg); }
+        }
+        
+        @keyframes float-emoji {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Confetti animation */
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background-color: #f0f;
+            top: 0;
+            opacity: 0;
+            z-index: 1000;
+        }
+        
+        .confetti:nth-child(odd) {
+            background-color: #0ff;
+        }
+        
+        .confetti:nth-child(even) {
+            background-color: #ff0;
+        }
+        
+        .confetti:nth-child(3n) {
+            background-color: #f00;
+        }
+        
+        .confetti:nth-child(3n+1) {
+            background-color: #0f0;
+        }
+        .lorhi-image img{
+            border-radius: 14px;
+        }
+        /* Lohri Countdown */
+.lohri-countdown {
+    margin: 25px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-radius: 18px;
+    border: 4px dashed #ff9800;
+    text-align: center;
+    animation: pulseGlow 2s infinite;
+}
+
+.countdown-title {
+    font-size: 22px;
+    color: #d32f2f;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.countdown-timer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.time-box {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation: bounceTime 1.5s infinite alternate;
+}
+
+.time-box span {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff5722;
+}
+
+.time-box small {
+    font-size: 14px;
+    color: #5d2906;
+    font-weight: bold;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px #ff9800; }
+    100% { box-shadow: 0 0 25px #ff5722; }
+}
+
+@keyframes bounceTime {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-6px); }
+}
+/* ================= EXTRA FESTIVE EFFECTS ================= */
+
+/* Fire glow on whole card */
+.greeting-card {
+    animation: cardGlow 3s infinite alternate;
+}
+
+@keyframes cardGlow {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 87, 34, 0.6);
+    }
+    100% {
+        box-shadow:
+            0 0 40px rgba(255, 152, 0, 0.9),
+            0 0 60px rgba(255, 87, 34, 0.6);
+    }
+}
+
+/* Title fire shimmer */
+.punjabi-title {
+    animation: fireText 2.5s infinite alternate;
+}
+
+@keyframes fireText {
+    0% {
+        text-shadow: 0 0 10px #ff9800;
+    }
+    100% {
+        text-shadow:
+            0 0 20px #ff5722,
+            0 0 40px #ff9800;
+    }
+}
+
+/* Shayari line-by-line fade + glow */
+.greeting-line {
+    opacity: 0;
+    animation: lineReveal 1s forwards;
+}
+
+.greeting-line.line1 { animation-delay: 0.3s; }
+.greeting-line.line2 { animation-delay: 0.8s; }
+.greeting-line.line3 { animation-delay: 1.3s; }
+
+@keyframes lineReveal {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Floating fire sparks from bottom */
+body::after {
+    content: "🔥 ✨ 🔥 ✨ 🔥";
+    position: fixed;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    font-size: 22px;
+    text-align: center;
+    animation: fireRise 6s linear infinite;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+@keyframes fireRise {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(-120vh);
+        opacity: 0;
+    }
+}
+
+/* Countdown extra celebration */
+.lohri-countdown {
+    animation:
+        pulseGlow 2s infinite,
+        shakeSoft 4s infinite;
+}
+
+/* Shake celebration */
+@keyframes shakeSoft {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    50% { transform: translateX(2px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
+
+/* Time boxes flip feel */
+.time-box {
+    position: relative;
+    overflow: hidden;
+}
+
+.time-box::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: rgba(255, 152, 0, 0.15);
+    animation: shineMove 2s infinite;
+}
+
+@keyframes shineMove {
+    0% { top: -50%; }
+    100% { top: 120%; }
+}
+
+/* Buttons glowing celebration */
+.btn,
+.open-btn {
+    animation: buttonGlow 2.5s infinite alternate;
+}
+
+@keyframes buttonGlow {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 152, 0, 0.6);
+    }
+    100% {
+        box-shadow:
+            0 0 25px rgba(255, 87, 34, 0.9),
+            0 0 45px rgba(255, 152, 0, 0.7);
+    }
+}
+
+/* Image pulse */
+.lorhi-image img {
+    animation: imagePulse 3s infinite;
+}
+
+@keyframes imagePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+/* Confetti sparkle glow */
+.confetti {
+    box-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+
+/* Mobile safe reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+    }
+}

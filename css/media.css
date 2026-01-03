@@ -1,0 +1,67 @@
+    /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .punjabi-title {
+                font-size: 40px;
+            }
+            
+            .greeting-card {
+                margin-top: 80px;
+                padding: 20px 15px;
+            }
+            
+            .character-container {
+                height: 160px;
+            }
+            
+            .btn {
+                padding: 16px 15px;
+                font-size: 18px;
+            }
+            
+            .landing-content {
+                padding: 30px 20px;
+            }
+            
+            .landing-title {
+                font-size: 32px;
+            }
+            
+            .sender-name {
+                font-size: 24px;
+            }
+            
+            .sender-message-punjabi {
+                font-size: 20px;
+            }
+            
+            .open-btn {
+                font-size: 22px;
+                padding: 18px 30px;
+            }
+        }
+        
+        @media (max-width: 380px) {
+            .punjabi-title {
+                font-size: 36px;
+            }
+            
+            .greeting-message {
+                font-size: 16px;
+            }
+            
+            .main-sender-message {
+                font-size: 18px;
+            }
+            
+            .landing-title {
+                font-size: 28px;
+            }
+            
+            .sender-name {
+                font-size: 22px;
+            }
+            
+            .sender-message-punjabi {
+                font-size: 18px;
+            }
+        }
